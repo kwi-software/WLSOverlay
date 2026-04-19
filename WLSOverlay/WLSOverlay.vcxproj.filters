@@ -50,16 +50,6 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\settings.reg">
-      <Filter>Ressourcendateien</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="resources\overlay.txt">
-      <Filter>Ressourcendateien</Filter>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="resources\overlay.png">
       <Filter>Ressourcendateien</Filter>
     </CopyFileToFolders>
@@ -70,6 +60,12 @@
       <Filter>Ressourcendateien</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="resources\LICENSE-2.0.txt">
+      <Filter>Ressourcendateien</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="resources\overlay.txt">
+      <Filter>Ressourcendateien</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="resources\settings.reg">
       <Filter>Ressourcendateien</Filter>
     </CopyFileToFolders>
   </ItemGroup>
