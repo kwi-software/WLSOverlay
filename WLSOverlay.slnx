@@ -4,9 +4,8 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/Projektmappenelemente/">
-    <File Path="examples/example_settings.reg" />
-    <File Path="examples/overlay.png" />
-    <File Path="examples/overlay.txt" />
+    <File Path="README.md" />
+    <File Path="README_de.md" />
   </Folder>
   <Project Path="WLSOverlay/WLSOverlay.vcxproj" Id="b8d7e4ef-ff61-402f-bbe1-b02a29612219" />
 </Solution>
