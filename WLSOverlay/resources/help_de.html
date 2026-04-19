@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WLSOverlay - Hilfe & Dokumentation</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: 0 auto; padding: 20px; background-color: #f4f6f9; }
+        h1, h2, h3 { color: #004b87; }
+        h1 { border-bottom: 2px solid #004b87; padding-bottom: 10px; }
+        h2 { margin-top: 30px; border-bottom: 1px solid #d1d9e6; padding-bottom: 5px; }
+        .card { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 0.95em; }
+        code { font-family: Consolas, 'Courier New', monospace; background: #eef1f6; padding: 2px 5px; border-radius: 4px; color: #d14; }
+        pre code { background: transparent; color: inherit; padding: 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.95em; }
+        th, td { padding: 12px 15px; border: 1px solid #e1e4e8; text-align: left; }
+        th { background-color: #f8f9fa; font-weight: bold; color: #333; }
+        tr:nth-child(even) { background-color: #fcfcfc; }
+        tr:hover { background-color: #f1f3f5; }
+        .note { background-color: #e3f2fd; border-left: 5px solid #2196F3; padding: 15px; margin: 15px 0; border-radius: 0 4px 4px 0; }
+    </style>
+</head>
+<body>
+
+<h1>WLSOverlay - Hilfe & Dokumentation</h1>
+
+<div class="card">
+    <h2>Beschreibung der Features</h2>
+    <p><strong>WLSOverlay</strong> ist ein nützlicher Windows-Dienst, der ein anpassbares Overlay direkt auf dem Windows-Anmelde- und Sperrbildschirm (Logon/Lock Screen) anzeigt.</p>
+    
+    <h3>Hauptfunktionen:</h3>
+    <ul>
+        <li><strong>Drei Anzeige-Modi:</strong>
+            <ul>
+                <li><strong>Textdatei:</strong> Liest formatierten Text aus einer lokalen Datei (<code>overlay.txt</code>).</li>
+                <li><strong>Bilddarstellung:</strong> Zeigt ein transparentes Bild an (<code>overlay.png</code>).</li>
+                <li><strong>Registry-Text:</strong> Bezieht dynamischen Text direkt aus einem angegebenen Windows-Registry-Wert (ideal für Skripte oder Systeminfos).</li>
+            </ul>
+        </li>
+        <li><strong>Live-Aktualisierung (Hot-Reloading):</strong> Der Dienst überwacht Konfigurations- und Dateipfade in Echtzeit. Änderungen an der Textdatei, dem Bild, den Einstellungen in der Registry oder dem überwachten dynamischen Registry-Wert werden <em>sofort und ohne Neustart</em> auf dem Bildschirm aktualisiert.</li>
+        <li><strong>Umfassende Anpassungsmöglichkeiten:</strong> Flexible Steuerung von Position, Verankerung an den 4 Bildschirmecken (Anchor), Deckkraft (Opacity), Schriftart, Schriftgröße, Tabulatorbreite und Textausrichtung. Die Schrift verwendet automatisch einen starken Kontrastrahmen für optimale Lesbarkeit.</li>
+        <li><strong>Sichere Integration:</strong> Der Dienst läuft unsichtbar im Hintergrund, dupliziert die Sicherheitstokens korrekt und injiziert das Overlay sicher in den <code>WinSta0\Winlogon</code> Desktop.</li>
+    </ul>
+</div>
+
+<div class="card">
+    <h2>Installation</h2>
+    <ol>
+        <li><strong>Dateien platzieren:</strong> Kopieren Sie die kompilierte ausführbare Datei (z.B. <code>WLSOverlay.exe</code>) in das gewünschte Installationsverzeichnis.</li>
+        <li><strong>Ordnerstruktur:</strong> Erstellen Sie im exakt gleichen Verzeichnis einen Unterordner mit dem Namen <code>OverlayFiles</code>.</li>
+        <li><strong>Inhalte hinterlegen:</strong> Legen Sie Ihre anzuzeigende Datei in den Ordner <code>OverlayFiles</code> (<code>overlay.txt</code> oder <code>overlay.png</code>).</li>
+        <li><strong>Als Dienst registrieren:</strong> Öffnen Sie die Eingabeaufforderung (cmd.exe) als Administrator und führen Sie folgenden Befehl aus (passen Sie den Pfad an). Der Parameter <code>/s</code> signalisiert den Start als Service:</li>
+    </ol>
+    <pre><code>sc create WLSOverlayService binPath= "C:\Pfad\zu\WLSOverlay.exe /s" start= auto</code></pre>
+    <ol start="5">
+        <li><strong>Dienst starten:</strong></li>
+    </ol>
+    <pre><code>sc start WLSOverlayService</code></pre>
+</div>
+
+<div class="card">
+    <h2>Beschreibung der Registry-Werte</h2>
+    <p>Die gesamte Konfiguration des Overlays findet über die Windows-Registry statt. Navigieren Sie zum Schlüssel:</p>
+    <pre><code>HKEY_LOCAL_MACHINE\Software\KWI-Software\WLSOverlay</code></pre>
+    
+    <div class="note">
+        <strong>Tipp:</strong> Sie können diese Werte ändern, während das Overlay angezeigt wird. Der Hintergrundprozess überwacht die Registry und wendet Ihre Anpassungen sofort an.
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Wertname</th>
+                <th>Typ</th>
+                <th>Beschreibung</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>OverlayType</strong></td>
+                <td><code>REG_DWORD</code></td>
+                <td><strong>Modus der Anzeige:</strong><br><code>0</code> = Textdatei (<code>overlay.txt</code>)<br><code>1</code> = Bilddatei (<code>overlay.png</code>)<br><code>2</code> = Dynamischer Registry-Text</td>
+            </tr>
+            <tr>
+                <td><strong>Opacity</strong></td>
+                <td><code>REG_DWORD</code></td>
+                <td>Deckkraft des Overlays in Prozent (Werte: <code>0</code> bis <code>100</code>).</td>
+            </tr>
+            <tr>
+                <td><strong>PosX</strong></td>
+                <td><code>REG_DWORD</code></td>
+                <td>Horizontaler Abstand (X-Achse) vom gewählten Ankerpunkt in Pixeln.</td>
+            </tr>
+            <tr>
+                <td><strong>PosY</strong></td>
+                <td><code>REG_DWORD</code></td>
+                <td>Vertikaler Abstand (Y-Achse) vom gewählten Ankerpunkt in Pixeln.</td>
+            </tr>
+            <tr>
+                <td><strong>Anchor</strong></td>
+                <td><code>REG_DWORD</code></td>
+                <td><strong>Bildschirm-Ankerpunkt:</strong><br><code>0</code> = Oben Links<br><code>1</code> = Oben Rechts<br><code>2</code> = Unten Links<br><code>3</code> = Unten Rechts</td>
+            </tr>
+            <tr>
+                <td><strong>FontSize</strong></td>
+                <td><code>REG_DWORD</code></td>
+                <td>Schriftgröße in Pixeln (erlaubte Werte: <code>6</code> bis <code>149</code>).</td>
+            </tr>
+            <tr>
+                <td><strong>IsWhiteText</strong></td>
+                <td><code>REG_DWORD</code></td>
+                <td><strong>Textfarbe:</strong><br><code>1</code> = Weißer Text mit schwarzer Umrandung<br><code>0</code> = Schwarzer Text mit weißer Umrandung</td>
+            </tr>
+            <tr>
+                <td><strong>TextAlignment</strong></td>
+                <td><code>REG_DWORD</code></td>
+                <td><strong>Textausrichtung:</strong><br><code>0</code> = Linksbündig<br><code>1</code> = Zentriert<br><code>2</code> = Rechtsbündig</td>
+            </tr>
+            <tr>
+                <td><strong>TabWidth</strong></td>
+                <td><code>REG_DWORD</code></td>
+                <td>Tabulatorbreite im Text (erlaubte Werte: <code>1</code> bis <code>32</code>).</td>
+            </tr>
+            <tr>
+                <td><strong>FontFamily</strong></td>
+                <td><code>REG_SZ</code></td>
+                <td>Name der Schriftart (z.B. <code>Arial</code>, <code>Consolas</code>).</td>
+            </tr>
+            <tr>
+                <td><strong>TargetRegKey</strong></td>
+                <td><code>REG_SZ</code></td>
+                <td><em>(Nur für OverlayType 2)</em>: Pfad des zu überwachenden Registry-Schlüssels (z.B. <code>HKLM\Software\MeineApp</code>). Unterstützte Roots: <code>HKCU</code>, <code>HKLM</code>, <code>HKCR</code>, <code>HKU</code>.</td>
+            </tr>
+            <tr>
+                <td><strong>TargetRegValue</strong></td>
+                <td><code>REG_SZ</code></td>
+                <td><em>(Nur für OverlayType 2)</em>: Name des Wertes (<code>REG_SZ</code> oder <code>REG_MULTI_SZ</code>) im Zielschlüssel, dessen Text im Overlay angezeigt werden soll.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <h2>Lizenz und Urheberrecht</h2>
+    <p>Dieses Projekt ist lizenziert unter der <strong>Apache License, Version 2.0</strong>.</p>
+    <p><strong>Copyright 2026 Karl Wintermann (kwi-software)</strong></p>
+    <p>Eine Kopie der Lizenz finden Sie unter:<br>
+    <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+    <p>Soweit nicht gesetzlich vorgeschrieben oder schriftlich vereinbart, wird die Software unter dieser Lizenz "WIE BESEHEN" UND OHNE JEGLICHE GARANTIEN ODER BEDINGUNGEN, weder ausdrücklich noch stillschweigend, vertrieben. Spezifische sprachliche Bestimmungen und Einschränkungen finden Sie in der Lizenz.</p>
+    
+    <h3>Kontakt &amp; Quelle</h3>
+    <ul>
+        <li><strong>GitHub:</strong> <a href="https://github.com/kwi-software" target="_blank">kwi-software</a></li>
+        <li><strong>E-Mail:</strong> <code>kwi-software(at)proton.me</code></li>
+    </ul>
+</div>
+
+</body>
+</html>
