@@ -468,8 +468,6 @@ int OverlayMain(HINSTANCE hInstance, int nCmdShow) {
         0, 0, 1, 1, NULL, NULL, hInstance, NULL
     );
 
-    RegisterHotKey(NULL, 1, MOD_CONTROL | MOD_ALT, 'Q');
-
     hEventTarget = CreateEvent(NULL, FALSE, FALSE, NULL);
     HANDLE hEventSettings = CreateEvent(NULL, FALSE, FALSE, NULL);
     HKEY hKeySettings = NULL;
@@ -509,7 +507,6 @@ int OverlayMain(HINSTANCE hInstance, int nCmdShow) {
         else if (wait == WAIT_OBJECT_0 + evCount) {
             while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
                 if (msg.message == WM_QUIT) goto end;
-                if (msg.message == WM_HOTKEY) PostQuitMessage(0);
                 TranslateMessage(&msg); DispatchMessage(&msg);
             }
         }
