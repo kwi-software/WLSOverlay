@@ -68,5 +68,8 @@
     <CopyFileToFolders Include="resources\settings.reg">
       <Filter>Ressourcendateien</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="resources\overlay_prefix.txt">
+      <Filter>Ressourcendateien</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

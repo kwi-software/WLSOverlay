@@ -29,10 +29,12 @@
 #define WM_UPDATE_OVERLAY (WM_APP + 1)
 
 std::wstring globalText = L"";
+std::wstring globalPrefixText = L"";
 Gdiplus::Image* globalImage = nullptr;
 
 std::wstring globalFontFamily = L"Arial";
 std::wstring globalConfigPathText = L"";
+std::wstring globalConfigPathPrefixText = L"";
 std::wstring globalConfigPathImage = L"";
 std::wstring globalDirPath = L"";
 std::wstring globalOverlayFilesDirPath = L"\\OverlayFiles";
@@ -46,6 +48,7 @@ int globalPosY = 25;
 int globalAnchor = 0;
 int globalOpacity = 100;
 int globalOverlayType = 0;
+bool globalAutoHidePrefix = false;
 
 DWORD globalTargetRegRoot = 1;
 std::wstring globalTargetRegKey = L"";
@@ -85,6 +88,7 @@ void SetupPortablePaths() {
     size_t lastSlash = fullPath.find_last_of(L"\\");
     globalDirPath = fullPath.substr(0, lastSlash);
     globalConfigPathText = globalDirPath + globalOverlayFilesDirPath + L"\\overlay.txt";
+    globalConfigPathPrefixText = globalDirPath + globalOverlayFilesDirPath + L"\\overlay_prefix.txt";
     globalConfigPathImage = globalDirPath + globalOverlayFilesDirPath + L"\\overlay.png";
 }
 
@@ -111,6 +115,8 @@ void LoadSettingsFromRegistry() {
     if (RegGetValueW(hKey, NULL, L"TextAlignment", RRF_RT_DWORD, NULL, &tempVal, &dataSize) == ERROR_SUCCESS) globalTextAlignment = tempVal;
     dataSize = sizeof(DWORD);
     if (RegGetValueW(hKey, NULL, L"TabWidth", RRF_RT_DWORD, NULL, &tempVal, &dataSize) == ERROR_SUCCESS) { if (tempVal >= 1 && tempVal <= 32) globalTabWidth = (int)tempVal; }
+    dataSize = sizeof(DWORD);
+    if (RegGetValueW(hKey, NULL, L"AutoHidePrefix", RRF_RT_DWORD, NULL, &tempVal, &dataSize) == ERROR_SUCCESS) globalAutoHidePrefix = (tempVal != 0);
 
     wchar_t fontBuffer[256] = { 0 };
     dataSize = sizeof(fontBuffer);
@@ -151,24 +157,24 @@ void UpdateTargetRegistryWatch() {
     }
 }
 
-std::wstring LoadTextFromFile(const std::wstring& path) {
+std::wstring LoadTextFromFile(const std::wstring& path, const std::wstring& fallback) {
     HANDLE hFile = CreateFileW(path.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile == INVALID_HANDLE_VALUE) {
         DWORD err = GetLastError();
         if (err == ERROR_FILE_NOT_FOUND || err == ERROR_PATH_NOT_FOUND) return L"";
-        return globalText;
+        return fallback;
     }
     LARGE_INTEGER size;
     if (!GetFileSizeEx(hFile, &size) || size.QuadPart > 1024 * 1024 || size.QuadPart == 0) {
         CloseHandle(hFile);
-        return size.QuadPart == 0 ? L"" : globalText;
+        return size.QuadPart == 0 ? L"" : fallback;
     }
 
     std::vector<char> buffer((size_t)size.QuadPart);
     DWORD bytesRead;
     if (!ReadFile(hFile, buffer.data(), (DWORD)buffer.size(), &bytesRead, NULL)) {
         CloseHandle(hFile);
-        return globalText;
+        return fallback;
     }
     CloseHandle(hFile);
 
@@ -309,27 +315,45 @@ void RenderAndApplyOverlay(HWND hwnd) {
     LoadSettingsFromRegistry();
     int finalW = 0, finalH = 0;
     bool shouldHide = false;
+    std::wstring currentDisplayText = L"";
 
     if (globalOverlayType == 0 || globalOverlayType == 2) {
-        if (globalOverlayType == 0) globalText = LoadTextFromFile(globalConfigPathText);
-        else globalText = LoadTextFromRegistryTarget();
+        globalPrefixText = LoadTextFromFile(globalConfigPathPrefixText, globalPrefixText);
 
-        if (globalText.empty()) shouldHide = true;
+        if (globalOverlayType == 0) {
+            globalText = LoadTextFromFile(globalConfigPathText, globalText);
+        }
         else {
-            HDC hdc = GetDC(NULL);
-            Gdiplus::Graphics g(hdc);
-            Gdiplus::Font font(globalFontFamily.c_str(), static_cast<Gdiplus::REAL>(globalFontSize), Gdiplus::FontStyleBold);
-            Gdiplus::RectF layoutRect(0, 0, static_cast<Gdiplus::REAL>(GetSystemMetrics(SM_CXSCREEN) - 200), 5000.0f);
-            Gdiplus::RectF boundRect;
-            Gdiplus::StringFormat format;
-            Gdiplus::REAL tabs = static_cast<Gdiplus::REAL>(globalFontSize * globalTabWidth * 0.5f);
-            format.SetTabStops(0.0f, 1, &tabs);
+            globalText = LoadTextFromRegistryTarget();
+        }
 
-            g.MeasureString(globalText.c_str(), -1, &font, layoutRect, &format, &boundRect);
-            ReleaseDC(NULL, hdc);
+        bool mainTextEmpty = globalText.empty();
 
-            finalW = (int)boundRect.Width + 50;
-            finalH = (int)boundRect.Height + 50;
+        if (mainTextEmpty && globalAutoHidePrefix) {
+            shouldHide = true;
+        }
+        else {
+            currentDisplayText = globalPrefixText + globalText;
+
+            if (currentDisplayText.empty()) {
+                shouldHide = true;
+            }
+            else {
+                HDC hdc = GetDC(NULL);
+                Gdiplus::Graphics g(hdc);
+                Gdiplus::Font font(globalFontFamily.c_str(), static_cast<Gdiplus::REAL>(globalFontSize), Gdiplus::FontStyleBold);
+                Gdiplus::RectF layoutRect(0, 0, static_cast<Gdiplus::REAL>(GetSystemMetrics(SM_CXSCREEN) - 200), 5000.0f);
+                Gdiplus::RectF boundRect;
+                Gdiplus::StringFormat format;
+                Gdiplus::REAL tabs = static_cast<Gdiplus::REAL>(globalFontSize * globalTabWidth * 0.5f);
+                format.SetTabStops(0.0f, 1, &tabs);
+
+                g.MeasureString(currentDisplayText.c_str(), -1, &font, layoutRect, &format, &boundRect);
+                ReleaseDC(NULL, hdc);
+
+                finalW = (int)boundRect.Width + 50;
+                finalH = (int)boundRect.Height + 50;
+            }
         }
     }
     else if (globalOverlayType == 1) {
@@ -380,7 +404,8 @@ void RenderAndApplyOverlay(HWND hwnd) {
 
             Gdiplus::GraphicsPath path;
             Gdiplus::RectF rect(25.0f, 25.0f, static_cast<Gdiplus::REAL>(finalW - 50), static_cast<Gdiplus::REAL>(finalH - 50));
-            path.AddString(globalText.c_str(), -1, &ff, Gdiplus::FontStyleBold, static_cast<Gdiplus::REAL>(globalFontSize), rect, &sf);
+
+            path.AddString(currentDisplayText.c_str(), -1, &ff, Gdiplus::FontStyleBold, static_cast<Gdiplus::REAL>(globalFontSize), rect, &sf);
 
             Gdiplus::Color colorMain = globalIsWhiteText ? Gdiplus::Color(255, 255, 255, 255) : Gdiplus::Color(255, 0, 0, 0);
             Gdiplus::Color colorBorder = globalIsWhiteText ? Gdiplus::Color(255, 0, 0, 0) : Gdiplus::Color(255, 255, 255, 255);
