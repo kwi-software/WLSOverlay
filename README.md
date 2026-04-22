@@ -8,9 +8,15 @@
   * **Text File:** Reads formatted text from a local file (`overlay.txt`).
   * **Image Display:** Displays a transparent image (`overlay.png`).
   * **Registry Text:** Fetches dynamic text directly from a specified Windows Registry value (ideal for scripts or system info).
-* **Live Update (Hot-Reloading):** The service monitors configuration and file paths in real-time. Changes to the text file, the image, the registry settings, or the monitored dynamic registry value are updated on the screen *instantly and without requiring a restart*.
+* **Prefix Support:** Loads an optional `overlay_prefix.txt` file whose content is always displayed before the main text (works in Text File and Registry Text modes).
+* **Live Update (Hot-Reloading):** The service monitors configuration and file paths in real-time. Changes to the text files, the image, the registry settings, or the monitored dynamic registry value are updated on the screen *instantly and without requiring a restart*.
 * **Comprehensive Customization:** Flexible control over position, screen corner anchoring (Anchor), opacity, font family, font size, tab width, and text alignment. The font automatically uses a high-contrast outline (white on black / black on white) for optimal readability on any background.
 * **Secure Integration:** The service runs invisibly in the background, correctly duplicates security tokens, and safely injects the overlay into the secure `WinSta0\Winlogon` desktop.
+
+**Example Images:**
+
+![Example 1: Text Mode](example1.png)
+![Example 2: Image Mode](example2.png)
 
 ---
 
@@ -18,7 +24,7 @@
 1. **Place Files:** Copy the compiled executable file (e.g., `WLSOverlay.exe`) to your desired installation directory.
 2. **Folder Structure:** Create a subfolder named `OverlayFiles` in the exact same directory.
 3. **Add Content:** Place your display file into the `OverlayFiles` folder:
-   * For Mode 0: `overlay.txt`
+   * For Mode 0: `overlay.txt` (and optionally `overlay_prefix.txt`)
    * For Mode 1: `overlay.png`
 4. **Register as a Service:** Open the Command Prompt (cmd.exe) as an Administrator and run the following command (adjust the path accordingly). The `/s` parameter tells the EXE to start in service mode:
    ```cmd
@@ -51,6 +57,7 @@ Navigate to the key:
 | **IsWhiteText** | `REG_DWORD` | **Text Color:**<br>`1` = White text with black outline<br>`0` = Black text with white outline |
 | **TextAlignment** | `REG_DWORD` | **Text Alignment:**<br>`0` = Left-aligned<br>`1` = Centered<br>`2` = Right-aligned |
 | **TabWidth** | `REG_DWORD` | Tabulator width in the text (allowed values: `1` to `32`). |
+| **AutoHidePrefix** | `REG_DWORD` | **Auto Hide Behavior:**<br>`1` = Hides the overlay (including prefix) if the main text is empty.<br>`0` = Always shows the prefix, even if the main text is empty. |
 | **FontFamily** | `REG_SZ` | Name of the font (e.g., `Arial`, `Consolas`, `Tahoma`). |
 | **TargetRegKey** | `REG_SZ` | *(Only for OverlayType 2)*: Path of the registry key to monitor (e.g., `HKLM\Software\MyApp`). Supported roots: `HKCU`, `HKLM`, `HKCR`, `HKU`. |
 | **TargetRegValue** | `REG_SZ` | *(Only for OverlayType 2)*: Name of the value (`REG_SZ` or `REG_MULTI_SZ`) in the target key whose text should be displayed. |

@@ -4,6 +4,8 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/Projektmappenelemente/">
+    <File Path="example1.png" />
+    <File Path="example2.png" />
     <File Path="LICENSE.txt" />
     <File Path="README.md" />
     <File Path="README_de.md" />

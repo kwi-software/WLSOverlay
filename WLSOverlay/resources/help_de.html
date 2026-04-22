@@ -38,7 +38,8 @@
                 <li><strong>Registry-Text:</strong> Bezieht dynamischen Text direkt aus einem angegebenen Windows-Registry-Wert (ideal für Skripte oder Systeminfos).</li>
             </ul>
         </li>
-        <li><strong>Live-Aktualisierung (Hot-Reloading):</strong> Der Dienst überwacht Konfigurations- und Dateipfade in Echtzeit. Änderungen an der Textdatei, dem Bild, den Einstellungen in der Registry oder dem überwachten dynamischen Registry-Wert werden <em>sofort und ohne Neustart</em> auf dem Bildschirm aktualisiert.</li>
+        <li><strong>Präfix-Unterstützung:</strong> Lädt eine optionale <code>overlay_prefix.txt</code>, deren Inhalt immer vor dem Haupttext angezeigt wird (funktioniert in den Modi Textdatei und Registry-Text).</li>
+        <li><strong>Live-Aktualisierung (Hot-Reloading):</strong> Der Dienst überwacht Konfigurations- und Dateipfade in Echtzeit. Änderungen an den Textdateien, dem Bild, den Einstellungen in der Registry oder dem überwachten dynamischen Registry-Wert werden <em>sofort und ohne Neustart</em> auf dem Bildschirm aktualisiert.</li>
         <li><strong>Umfassende Anpassungsmöglichkeiten:</strong> Flexible Steuerung von Position, Verankerung an den 4 Bildschirmecken (Anchor), Deckkraft (Opacity), Schriftart, Schriftgröße, Tabulatorbreite und Textausrichtung. Die Schrift verwendet automatisch einen starken Kontrastrahmen für optimale Lesbarkeit.</li>
         <li><strong>Sichere Integration:</strong> Der Dienst läuft unsichtbar im Hintergrund, dupliziert die Sicherheitstokens korrekt und injiziert das Overlay sicher in den <code>WinSta0\Winlogon</code> Desktop.</li>
     </ul>
@@ -49,7 +50,7 @@
     <ol>
         <li><strong>Dateien platzieren:</strong> Kopieren Sie die kompilierte ausführbare Datei (z.B. <code>WLSOverlay.exe</code>) in das gewünschte Installationsverzeichnis.</li>
         <li><strong>Ordnerstruktur:</strong> Erstellen Sie im exakt gleichen Verzeichnis einen Unterordner mit dem Namen <code>OverlayFiles</code>.</li>
-        <li><strong>Inhalte hinterlegen:</strong> Legen Sie Ihre anzuzeigende Datei in den Ordner <code>OverlayFiles</code> (<code>overlay.txt</code> oder <code>overlay.png</code>).</li>
+        <li><strong>Inhalte hinterlegen:</strong> Legen Sie Ihre anzuzeigenden Dateien in den Ordner <code>OverlayFiles</code> (<code>overlay.txt</code>, optional <code>overlay_prefix.txt</code>, oder <code>overlay.png</code>).</li>
         <li><strong>Als Dienst registrieren:</strong> Öffnen Sie die Eingabeaufforderung (cmd.exe) als Administrator und führen Sie folgenden Befehl aus (passen Sie den Pfad an). Der Parameter <code>/s</code> signalisiert den Start als Service:</li>
     </ol>
     <pre><code>sc create WLSOverlayService binPath= "C:\Pfad\zu\WLSOverlay.exe /s" start= auto</code></pre>
@@ -121,6 +122,11 @@
                 <td><strong>TabWidth</strong></td>
                 <td><code>REG_DWORD</code></td>
                 <td>Tabulatorbreite im Text (erlaubte Werte: <code>1</code> bis <code>32</code>).</td>
+            </tr>
+            <tr>
+                <td><strong>AutoHidePrefix</strong></td>
+                <td><code>REG_DWORD</code></td>
+                <td><strong>Sichtbarkeits-Verhalten:</strong><br><code>1</code> = Versteckt das Overlay (inkl. Präfix), wenn der Haupttext leer ist.<br><code>0</code> = Zeigt das Präfix immer an, auch wenn der Haupttext leer ist.</td>
             </tr>
             <tr>
                 <td><strong>FontFamily</strong></td>

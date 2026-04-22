@@ -28,17 +28,19 @@
 <div class="card">
     <h2>Feature Description</h2>
     <p><strong>WLSOverlay</strong> is a useful Windows service that displays a customizable overlay directly on the Windows Logon and Lock Screen.</p>
-    
+
     <h3>Key Features:</h3>
     <ul>
-        <li><strong>Three Display Modes:</strong>
+        <li>
+            <strong>Three Display Modes:</strong>
             <ul>
                 <li><strong>Text File:</strong> Reads formatted text from a local file (<code>overlay.txt</code>).</li>
                 <li><strong>Image Display:</strong> Displays a transparent image (<code>overlay.png</code>).</li>
                 <li><strong>Registry Text:</strong> Fetches dynamic text directly from a specified Windows Registry value (ideal for scripts or system info).</li>
             </ul>
         </li>
-        <li><strong>Live Update (Hot-Reloading):</strong> The service monitors configuration and file paths in real-time. Changes to the text file, the image, the registry settings, or the monitored dynamic registry value are updated on the screen <em>instantly and without requiring a restart</em>.</li>
+        <li><strong>Prefix Support:</strong> Loads an optional <code>overlay_prefix.txt</code> file whose content is always displayed before the main text (works in Text File and Registry Text modes).</li>
+        <li><strong>Live Update (Hot-Reloading):</strong> The service monitors configuration and file paths in real-time. Changes to the text files, the image, the registry settings, or the monitored dynamic registry value are updated on the screen <em>instantly and without requiring a restart</em>.</li>
         <li><strong>Comprehensive Customization:</strong> Flexible control over position, screen corner anchoring (Anchor), opacity, font family, font size, tab width, and text alignment. The font automatically uses a high-contrast outline for optimal readability.</li>
         <li><strong>Secure Integration:</strong> The service runs invisibly in the background, correctly duplicates security tokens, and safely injects the overlay into the secure <code>WinSta0\Winlogon</code> desktop.</li>
     </ul>
@@ -49,7 +51,7 @@
     <ol>
         <li><strong>Place Files:</strong> Copy the compiled executable file (e.g., <code>WLSOverlay.exe</code>) to your desired installation directory.</li>
         <li><strong>Folder Structure:</strong> Create a subfolder named <code>OverlayFiles</code> in the exact same directory.</li>
-        <li><strong>Add Content:</strong> Place your display file into the <code>OverlayFiles</code> folder (<code>overlay.txt</code> or <code>overlay.png</code>).</li>
+        <li><strong>Add Content:</strong> Place your display files into the <code>OverlayFiles</code> folder (<code>overlay.txt</code>, optionally <code>overlay_prefix.txt</code>, or <code>overlay.png</code>).</li>
         <li><strong>Register as a Service:</strong> Open the Command Prompt (cmd.exe) as an Administrator and run the following command (adjust the path accordingly). The <code>/s</code> parameter tells the EXE to start in service mode:</li>
     </ol>
     <pre><code>sc create WLSOverlayService binPath= "C:\Path\To\WLSOverlay.exe /s" start= auto</code></pre>
@@ -121,6 +123,11 @@
                 <td><strong>TabWidth</strong></td>
                 <td><code>REG_DWORD</code></td>
                 <td>Tabulator width in the text (allowed values: <code>1</code> to <code>32</code>).</td>
+            </tr>
+            <tr>
+                <td><strong>AutoHidePrefix</strong></td>
+                <td><code>REG_DWORD</code></td>
+                <td><strong>Auto Hide Behavior:</strong><br><code>1</code> = Hides the overlay (including prefix) if the main text is empty.<br><code>0</code> = Always shows the prefix, even if the main text is empty.</td>
             </tr>
             <tr>
                 <td><strong>FontFamily</strong></td>
